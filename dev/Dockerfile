@@ -60,8 +60,8 @@ RUN yum update -y \
     && sh -c "curl -L http://crufty.net/ftp/pub/sjg/bmake-20171207.tar.gz | tar -zxv" \
     && cd bmake && ./boot-strap prefix=/usr/local && ./boot-strap prefix=/usr/local op=install \
     && cd /home/bbs \
-    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/1e28729ffc20d9031d03c5e9e419c18115662448.tar.gz|tar -zxv" \
-    && gosu bbs mv dreambbs-1e28729ffc20d9031d03c5e9e419c18115662448 dreambbs \
+    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/v0.95.tar.gz |tar -zxv" \
+    && gosu bbs mv dreambbs-0.95 dreambbs \
     && gosu bbs cp -r /home/bbs/dreambbs/sample/bbs /home/ \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab \
     && gosu bbs cp /home/bbs/dreambbs.conf /home/bbs/dreambbs \
