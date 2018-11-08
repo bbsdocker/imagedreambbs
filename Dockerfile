@@ -24,7 +24,13 @@ RUN set -ex; \
         \
 # verify the signature
         export GNUPGHOME="$(mktemp -d)"; \
-        gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+        for server in $(shuf -e ha.pool.sks-keyservers.net \
+            hkp://p80.pool.sks-keyservers.net:80 \
+            keyserver.ubuntu.com \
+            hkp://keyserver.ubuntu.com:80 \
+            pgp.mit.edu) ; do \
+            gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+        done && \
         gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu; \
         rm -r "$GNUPGHOME" /tmp/gosu.asc; \
         \
@@ -70,5 +76,5 @@ RUN yum update -y \
     && rm -rf /usr/local/share/mk
 
 # Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
-CMD ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && service crond start && /home/bbs/bin/bbsd 23 && while true; do sleep 10; done"]
-EXPOSE 23
+cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin/bbsd 8888 && service crond start && while true; do sleep 10; done"]
+EXPOSE 8888
