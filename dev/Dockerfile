@@ -14,26 +14,32 @@ USER root
 #################################
 ENV GOSU_VERSION 1.10
 RUN set -ex; \
-	\
-	yum -y install epel-release; \
-	yum -y install wget dpkg; \
-	\
-	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
-	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-	\
+        \
+        yum -y install epel-release; \
+        yum -y install wget dpkg; \
+        \
+        dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+        wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+        wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+        \
 # verify the signature
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
-	gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu; \
-	rm -r "$GNUPGHOME" /tmp/gosu.asc; \
-	\
-	chmod +x /usr/bin/gosu; \
+        export GNUPGHOME="$(mktemp -d)"; \
+        for server in $(shuf -e ha.pool.sks-keyservers.net \
+            hkp://p80.pool.sks-keyservers.net:80 \
+            keyserver.ubuntu.com \
+            hkp://keyserver.ubuntu.com:80 \
+            pgp.mit.edu) ; do \
+            gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+        done && \
+        gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu; \
+        rm -r "$GNUPGHOME" /tmp/gosu.asc; \
+        \
+        chmod +x /usr/bin/gosu; \
 # verify that the binary works
-	gosu nobody true; \
-	\
-	yum -y remove wget dpkg; \
-	yum clean all
+        gosu nobody true; \
+        \
+        yum -y remove wget dpkg; \
+        yum clean all
 ###################################
 
 RUN yum update -y \
@@ -62,5 +68,5 @@ RUN yum update -y \
     && cd /home/bbs/dreambbs && gosu bbs bmake all install clean && cd ..
 
 # Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
-CMD ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && service crond start && /home/bbs/bin/bbsd 23 && while true; do sleep 10; done"]
-EXPOSE 23
+CMD ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin/bbsd 8888 && service crond start && while true; do sleep 10; done"]
+EXPOSE 8888
