@@ -46,6 +46,7 @@ RUN yum update -y \
     && yum install -y epel-release \
     && yum install --nogpgcheck -y \
                 util-linux-ng \
+                git \
                 gcc \
                 make \
                 clang \
