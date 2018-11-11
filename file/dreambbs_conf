@@ -6,7 +6,6 @@
 #define NICKNAME        "夢大"                      /* 中文簡稱 */
 #define OWNER	        "NCKU.CCNS"                 /* 學校簡稱 */
 #define MYHOSTNAME      "dreambbs.ccnsdocker.test"  /* 網路位址 */
-#define BBSVERSION      "Rev.Beta 3"                /* 版本編號 */
 #define SYSOPNICK       "啊吐精靈"                  /* SYSOP 暱稱 */
 #define BBSHOME	        "/home/bbs"                 /* BBS 的家 */
 #define BBSUID	        9999
