@@ -8,6 +8,7 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /home/bbs/dreambbs.conf
 USER root
+ARG GITVER=1fc9a9efb3e16f7d9abbbd19850bf3d9620d5e42
 
 # Install gosu for switch user in runtime command
 # source: https://github.com/tianon/gosu/blob/master/INSTALL.md
@@ -61,8 +62,8 @@ RUN yum update -y \
     && sh -c "curl -L http://crufty.net/ftp/pub/sjg/bmake-20171207.tar.gz | tar -zxv" \
     && cd bmake && ./boot-strap prefix=/usr/local && ./boot-strap prefix=/usr/local op=install \
     && cd /home/bbs \
-    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/1e28729ffc20d9031d03c5e9e419c18115662448.tar.gz|tar -zxv" \
-    && gosu bbs mv dreambbs-1e28729ffc20d9031d03c5e9e419c18115662448 dreambbs \
+    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/$GITVER.tar.gz|tar -zxv" \
+    && gosu bbs mv dreambbs-$GITVER dreambbs \
     && gosu bbs cp -r /home/bbs/dreambbs/sample/bbs /home/ \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab \
     && gosu bbs cp /home/bbs/dreambbs.conf /home/bbs/dreambbs \
