@@ -61,8 +61,8 @@ RUN yum update -y \
     && cd bmake && ./boot-strap prefix=/usr/local && ./boot-strap prefix=/usr/local op=install \
     && cd / && rm -rf /bmake-build \
     && cd /home/bbs \
-    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/v0.95.tar.gz |tar -zxv" \
-    && gosu bbs mv dreambbs-0.95 dreambbs \
+    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/v0.95.1.tar.gz |tar -zxv" \
+    && gosu bbs mv dreambbs-0.95.1 dreambbs \
     && gosu bbs cp -r /home/bbs/dreambbs/sample/bbs /home/ \
     && gosu bbs cp /home/bbs/dreambbs.conf /home/bbs/dreambbs \
     && cd /home/bbs/dreambbs && gosu bbs bmake all install clean && cd .. \
