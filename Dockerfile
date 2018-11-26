@@ -7,8 +7,8 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
-ARG SNAPVER=fa137d346c96e4893963ea3d715b4de32d8b5f09
-ARG  GITVER=c9d362233be3d5b1c7b35dc70571533278ba6c3f
+ARG SNAPVER=0c7be91bf3b7b6b19c03f2212769825a32c6aa32
+ARG  GITVER=2590be40229c13657a403f83e58ed5c13426c25d
 RUN apt update \
     && apt upgrade -y \
     && apt-get install -y --no-install-recommends \
