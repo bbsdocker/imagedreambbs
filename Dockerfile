@@ -8,7 +8,7 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
-ARG RELEASE_VER=0.96.1
+ARG RELEASE_VER=0.96.2
 
 # Install gosu for switch user in runtime command
 # source: https://github.com/tianon/gosu/blob/master/INSTALL.md
