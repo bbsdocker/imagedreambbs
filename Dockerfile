@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM i386/debian:buster
 MAINTAINER holishing
 RUN groupadd --gid 9999 bbs \
     && useradd -g bbs -s /bin/bash --uid 9999 bbs \
@@ -17,9 +17,8 @@ RUN apt update \
        bmake \
        curl \
        ca-certificates \
-       gcc-multilib \
        clang \
-       lib32ncurses5-dev \
+       libncurses5-dev \
        gosu \
     && cd /home/ && rm -rf bbs && sh -c "curl -L https://github.com/ccns/dreambbs_snap/archive/$SNAPVER.tar.gz|tar -zxv" \
     && mv dreambbs_snap-$SNAPVER bbs && chown -R bbs:bbs /home/bbs && cd /home/bbs \
