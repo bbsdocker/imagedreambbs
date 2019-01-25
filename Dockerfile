@@ -8,7 +8,7 @@ USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
 ARG SNAPVER=0c7be91bf3b7b6b19c03f2212769825a32c6aa32
-ARG  GITVER=fe9aefb2707d5bab775bfd0372372ba07be963ee
+ARG  GITVER=25ec4b5bb963d3b02154479894131c2d62097550
 RUN apt update \
     && apt upgrade -y \
     && apt-get install -y --no-install-recommends \
