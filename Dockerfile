@@ -70,6 +70,6 @@ RUN yum update -y \
     && cd /home/bbs && ln -s bin-0.97 bin \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab
 
-# Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
+# Notice, in here, bbsd started service and PROVIDE BIG5 encoding for users.
 cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin-0.97/bbsd 8888 && service crond start && while true; do sleep 10; done"]
 EXPOSE 8888
