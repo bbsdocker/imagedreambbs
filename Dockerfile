@@ -8,7 +8,7 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
-ARG RELEASE_VER=0.97.2
+ARG RELEASE_VER=0.97.3
 
 # Install gosu for switch user in runtime command
 # source: https://github.com/tianon/gosu/blob/master/INSTALL.md
@@ -67,9 +67,9 @@ RUN yum update -y \
     && gosu bbs mv dreambbs-$RELEASE_VER dreambbs \
     && gosu bbs cp /tmp/dreambbs.conf /home/bbs/dreambbs \
     && cd /home/bbs/dreambbs && gosu bbs bmake all install clean && cd .. \
-    && cd /home/bbs/bin && ln -s bbsd-0.97 bbsd \
+    && cd /home/bbs && ln -s bin-0.97 bin \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab
 
 # Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
-cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin/bbsd 8888 && service crond start && while true; do sleep 10; done"]
+cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin-0.97/bbsd 8888 && service crond start && while true; do sleep 10; done"]
 EXPOSE 8888
