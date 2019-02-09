@@ -27,6 +27,7 @@ RUN apt-get update \
     && gosu bbs cp /tmp/dreambbs.conf /home/bbs/dreambbs \
     && cd /home/bbs/dreambbs && gosu bbs bmake all install clean && cd .. \
     && cd /home/bbs && ln -s bin-1.0 bin \
+    && cd /home/bbs && ln -s sh-1.0 sh \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab
 
 # Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
