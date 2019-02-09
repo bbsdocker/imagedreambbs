@@ -7,8 +7,7 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
-ARG SNAPVER=0c7be91bf3b7b6b19c03f2212769825a32c6aa32
-ARG  GITVER=25ec4b5bb963d3b02154479894131c2d62097550
+ARG RELEASE_VER=1.0.0
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
@@ -21,14 +20,15 @@ RUN apt-get update \
        clang \
        lib32ncurses5-dev \
        gosu \
-    && cd /home/ && rm -rf bbs && sh -c "curl -L https://github.com/ccns/dreambbs_snap/archive/$SNAPVER.tar.gz|tar -zxv" \
-    && mv dreambbs_snap-$SNAPVER bbs && chown -R bbs:bbs /home/bbs && cd /home/bbs \
-    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/$GITVER.tar.gz|tar -zxv" \
-    && gosu bbs mv dreambbs-$GITVER dreambbs \
+    && cd /home/ && rm -rf bbs && sh -c "curl -L https://github.com/ccns/dreambbs_snap/archive/v$RELEASE_VER.tar.gz|tar -zxv" \
+    && mv dreambbs_snap-$RELEASE_VER bbs && chown -R bbs:bbs /home/bbs && cd /home/bbs \
+    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/v$RELEASE_VER.tar.gz |tar -zxv" \
+    && gosu bbs mv dreambbs-$RELEASE_VER dreambbs \
     && gosu bbs cp /tmp/dreambbs.conf /home/bbs/dreambbs \
     && cd /home/bbs/dreambbs && gosu bbs bmake all install clean && cd .. \
-    && gosu bbs crontab /home/bbs/dreambbs/sample/crontab \
-    && rm -rf /home/bbs/dreambbs
+    && cd /home/bbs && ln -s bin-1.0 bin \
+    && gosu bbs crontab /home/bbs/dreambbs/sample/crontab
+
 # Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
 cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin/bbsd 8888 && /etc/init.d/cron start && while true; do sleep 10; done"]
 EXPOSE 8888
