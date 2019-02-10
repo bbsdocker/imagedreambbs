@@ -28,6 +28,10 @@
 /* ¶}±Ò pmore ¾\Åª¾¹¤¶­±, if you use GNU make to compile, please modify the maple/Makefile, too. */
 #define M3_USE_PMORE            /* piaip's more 2007+ */
 
+/* test chatroom */
+#define HAVE_CHATROOM_CLIENT
+#define M3_CHAT_SCROLL_MODE
+
 /* Share Memomy Key Configuration: For Several BBS in one host */
 //#define BRDSHM_KEY	(2997) 
 //#define UTMPSHM_KEY	(1998) 
