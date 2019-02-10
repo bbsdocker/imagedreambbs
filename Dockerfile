@@ -7,7 +7,7 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
-ARG RELEASE_VER=1.0-rc3
+ARG RELEASE_VER=1.0.0
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
@@ -30,6 +30,6 @@ RUN apt-get update \
     && cd /home/bbs && ln -s sh-1.0 sh \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab
 
-# Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
+# Notice, in here, bbsd started service and PROVIDE BIG5 encoding for users.
 cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin/bbsd 8888 && /etc/init.d/cron start && while true; do sleep 10; done"]
 EXPOSE 8888
