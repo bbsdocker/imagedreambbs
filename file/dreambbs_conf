@@ -32,7 +32,7 @@
 #define M3_USE_PFTERM
 
 #define HAVE_CHATROOM_CLIENT
-##define M3_CHAT_SCROLL_MODE
+#define M3_CHAT_SCROLL_MODE
 
 /* Share Memomy Key Configuration: For Several BBS in one host */
 //#define BRDSHM_KEY	(2997) 
