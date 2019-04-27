@@ -7,7 +7,7 @@ RUN groupadd --gid 9999 bbs \
 USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
-ARG RELEASE_VER=1.0.0
+ARG RELEASE_VER=1.1.0
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
