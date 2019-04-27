@@ -20,7 +20,7 @@ RUN apt-get update \
        clang \
        lib32ncurses5-dev \
        gosu \
-    && cd /home/ && rm -rf bbs && sh -c "curl -L https://github.com/ccns/dreambbs_snap/archive/v$RELEASE_VER.tar.gz|tar -zxv" \
+    && cd /home/ && rm -rf bbs && sh -c "curl -L https://github.com/ccns/dreambbs_snap/archive/master.tar.gz|tar -zxv" \
     && mv dreambbs_snap-$RELEASE_VER bbs && chown -R bbs:bbs /home/bbs && cd /home/bbs \
     && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/v$RELEASE_VER.tar.gz |tar -zxv" \
     && gosu bbs mv dreambbs-$RELEASE_VER dreambbs \
