@@ -8,7 +8,7 @@ USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 USER root
 ARG SNAPVER=2931fc7b80c690381cad767413d678e2f4aefaf1
-ARG  GITVER=5fa7e82b0dfb64230daf0ad0ee484eb5847b5a3f
+ARG  GITVER=b58f120b09b95d5c7f96c9214e4cb3240a031d7e
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
@@ -26,7 +26,7 @@ RUN apt-get update \
     && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/$GITVER.tar.gz|tar -zxv" \
     && gosu bbs mv dreambbs-$GITVER dreambbs \
     && gosu bbs cp /tmp/dreambbs.conf /home/bbs/dreambbs \
-    && cd /home/bbs/dreambbs && gosu bbs bmake all install clean && cd .. \
+    && cd /home/bbs/dreambbs && gosu bbs bmake configure && gosu bbs bmake all install clean && cd .. \
     && gosu bbs crontab /home/bbs/dreambbs/sample/crontab \
     && rm -rf /home/bbs/dreambbs
 # Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
