@@ -23,6 +23,8 @@ gcc -v
 git clone ${DREAMBBS_SNAP_GIT} ${BBSHOME}
 git clone ${DREAMBBS_GIT} ${BBSHOME}/src
 cp -v /tmp/dreambbs.conf ${BBSHOME}/src/dreambbs.conf
+echo 'export BBSHOME=${HOME}' > ${HOME}/.bashrc
+echo '. ${HOME}/.bashrc' > ${HOME}/.bash_profile
 mkdir ${BBSHOME}/src/build
 cd ${BBSHOME}/src/build
 cmake ..
