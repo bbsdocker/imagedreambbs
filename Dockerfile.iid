@@ -22,11 +22,10 @@ RUN yum update -y \
                 libgcc.i686 \
                 libstdc++-devel.i686 \
                 ncurses-devel.i686 \
-                cronie \
                 git \
                 sudo \
     && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh \
     && sudo -iu bbs env DREAMBBS_GIT="https://github.com/IepIweidieng/dreambbs.git" sh /tmp/build_dreambbs.bash
 
-cmd ["sh","-c","sudo -iu bbs sh /home/bbs/sh/start.sh && sudo -iu bbs /home/bbs/bin/bbsd 8888 && /etc/init.d/cron start && while true; do sleep 10; done"]
+cmd ["sh","-c","sudo -iu bbs sh /home/bbs/sh/start.sh && sudo -iu bbs /home/bbs/bin/bbsd 8888 && while true; do sleep 10; done"]
 EXPOSE 8888
