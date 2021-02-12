@@ -35,8 +35,8 @@ jobs:
           push: true
           tags: bbsdocker/imagedreambbs:latest,bbsdocker/imagedreambbs:${{ steps.date.outputs.date }}
             build-args:
-              DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"
-              DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"
+              - DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"
+              - DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"
 
       -
         name: Image digest
