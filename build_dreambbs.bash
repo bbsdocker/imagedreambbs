@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -eux
-
 export BBSHOME=${HOME}
 export BBSUID=$(id -u)
 export BBSGID=$(id -g)
@@ -13,7 +11,9 @@ export BBSHOME=${HOME}
 export WWWGID=$(id -u)
 export WWWGROUP=$(id -ng)
 if [ "${DREAMBBS_SNAP_GIT}" = "" ]; then export DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"; fi
-if [ "${DREAMBBS_GIT}" = "" ]; export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"; fi
+if [ "${DREAMBBS_GIT}" = "" ]; then export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"; fi
+
+set -eux
 
 # check environment
 env
