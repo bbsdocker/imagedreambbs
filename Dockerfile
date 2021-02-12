@@ -9,6 +9,7 @@ RUN groupadd --gid 9999 bbs \
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
 ENV DREAMBBS_GIT=$DREAMBBS_GIT
+ENV DREAMBBS_SNAP_GIT=$DREAMBBS_SNAP_GIT
 
 RUN yum update -y \
     && yum install -y epel-release \
