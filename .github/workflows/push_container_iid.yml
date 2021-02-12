@@ -4,7 +4,7 @@ on:
   push:
     branches: master
   schedule:
-    - cron: "30 12 * * 0/3"
+    - cron: "30 13 * * 0/3"
 
 jobs:
   main:
@@ -33,9 +33,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: bbsdocker/imagedreambbs:latest,bbsdocker/imagedreambbs:${{ steps.date.outputs.date }}
+          tags: bbsdocker/imagedreambbs:iid-latest,bbsdocker/imagedreambbs:iid-${{ steps.date.outputs.date }}
             build-args: |
-              DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"
+              DREAMBBS_GIT="https://github.com/IepIweidieng/dreambbs.git"
 
       -
         name: Image digest

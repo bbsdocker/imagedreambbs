@@ -12,8 +12,8 @@ export BBSHOME=${HOME}
 #export WWWGROUP=nginx
 export WWWGID=$(id -u)
 export WWWGROUP=$(id -ng)
-export DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"
-export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"
+if [ "${DREAMBBS_SNAP_GIT}" = "" ]; then export DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"; fi
+if [ "${DREAMBBS_GIT}" = "" ]; export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"; fi
 
 # check environment
 env

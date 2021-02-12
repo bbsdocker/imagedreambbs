@@ -8,6 +8,7 @@ RUN groupadd --gid 9999 bbs \
     && ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 COPY file/dreambbs_conf /tmp/dreambbs.conf
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
+ENV DREAMBBS_GIT=$DREAMBBS_GIT
 
 RUN yum update -y \
     && yum install -y epel-release \
