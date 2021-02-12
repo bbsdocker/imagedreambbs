@@ -1,34 +1,31 @@
-FROM debian:buster
-MAINTAINER holishing
+FROM quay.io/centos/centos:stream8
+MAINTAINER "Sean Ho <holishing@ccns.ncku.edu.tw>"
 RUN groupadd --gid 9999 bbs \
-    && useradd -g bbs -s /bin/bash --uid 9999 bbs \
+    && useradd -g bbs -s /bin/bash --uid 9999 --no-create-home bbs \
+    && mkdir /home/bbs \
+    && chown bbs:bbs /home/bbs \
     && rm /etc/localtime \
     && ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-USER bbs
 COPY file/dreambbs_conf /tmp/dreambbs.conf
-USER root
-ARG SNAPVER=2931fc7b80c690381cad767413d678e2f4aefaf1
-ARG  GITVER=b58f120b09b95d5c7f96c9214e4cb3240a031d7e
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends \
-       cron \
-       make \
-       bmake \
-       curl \
-       ca-certificates \
-       gcc-multilib \
-       clang \
-       lib32ncurses5-dev \
-       gosu \
-    && cd /home/ && rm -rf bbs && sh -c "curl -L https://github.com/ccns/dreambbs_snap/archive/$SNAPVER.tar.gz|tar -zxv" \
-    && mv dreambbs_snap-$SNAPVER bbs && chown -R bbs:bbs /home/bbs && cd /home/bbs \
-    && gosu bbs sh -c "curl -L https://github.com/ccns/dreambbs/archive/$GITVER.tar.gz|tar -zxv" \
-    && gosu bbs mv dreambbs-$GITVER dreambbs \
-    && gosu bbs cp /tmp/dreambbs.conf /home/bbs/dreambbs \
-    && cd /home/bbs/dreambbs && gosu bbs bmake configure && gosu bbs bmake all install clean && cd .. \
-    && gosu bbs crontab /home/bbs/dreambbs/sample/crontab \
-    && rm -rf /home/bbs/dreambbs
-# Notice, in here, mbbsd started service and PROVIDE BIG5 encoding for users.
-cmd ["sh","-c","gosu bbs sh /home/bbs/sh/start.sh && gosu bbs /home/bbs/bin/bbsd 8888 && /etc/init.d/cron start && while true; do sleep 10; done"]
+COPY build_dreambbs.bash /tmp/build_dreambbs.bash
+
+RUN yum update -y \
+    && yum install -y epel-release \
+    && yum install --nogpgcheck -y \
+                util-linux-ng \
+                gcc-toolset-10 \
+                make \
+                cmake \
+                glibc-devel \
+                glibc-devel.i686 \
+                libgcc.i686 \
+                libstdc++-devel.i686 \
+                ncurses-devel.i686 \
+                cronie \
+                git \
+                sudo \
+    && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh \
+    && sudo -iu bbs sh /tmp/build_dreambbs.bash
+
+cmd ["sh","-c","sudo -iu bbs sh /home/bbs/sh/start.sh && sudo -iu bbs /home/bbs/bin/bbsd 8888 && /etc/init.d/cron start && while true; do sleep 10; done"]
 EXPOSE 8888
