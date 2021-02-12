@@ -14,7 +14,8 @@ RUN yum update -y \
     && yum install --nogpgcheck -y \
                 util-linux-ng \
                 gcc-toolset-10-gcc \
-                make \
+                gcc-toolset-10-gcc-c++ \
+                gcc-toolset-10-make \
                 cmake \
                 glibc-devel \
                 glibc-devel.i686 \
