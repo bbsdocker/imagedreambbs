@@ -11,6 +11,7 @@ COPY build_dreambbs.bash /tmp/build_dreambbs.bash
 
 RUN yum update -y \
     && yum install -y epel-release \
+    && yum update -y \
     && yum install --nogpgcheck -y \
                 util-linux-ng \
                 gcc-toolset-10-gcc \
