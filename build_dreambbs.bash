@@ -27,7 +27,7 @@ if [ "${DREAMBBS_GIT}" = "https://github.com/IepIweidieng/dreambbs.git" ]; then
     curl -L -o ipv6_workaround.patch https://gist.github.com/holishing/2d94033592c35b5c7c08572889adabf1/raw/c60179fe85ff3f3995322f9399c32865ed524555/0001-Revert-fix-IPv6-socket-fix-misuse-of-AF_UNSPEC-for-s.patch;
     git config user.name "Docker Script"
     git config user.email "do-not-reply@docker.test"
-    git am 0001-Revert-fix-IPv6-socket-fix-misuse-of-AF_UNSPEC-for-s.patch;
+    git am ipv6_workaround.patch;
     cd -;
 fi
 cp -v /tmp/dreambbs.conf ${BBSHOME}/src/dreambbs.conf
