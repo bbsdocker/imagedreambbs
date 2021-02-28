@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
 
-export BBSHOME=${HOME}
-export BBSUID=$(id -u)
-export BBSGID=$(id -g)
-export BBSUSR=${USER}
-export BBSGROUP=$(id -ng)
-export BBSHOME=${HOME}
-#export WWWGID=$(id -g nginx)
-#export WWWGROUP=nginx
-export WWWGID=$(id -u)
-export WWWGROUP=$(id -ng)
+cp /tmp/env.compile ~/.env.compile
+. ~/.env.compile
 if [ "${DREAMBBS_SNAP_GIT}" = "" ]; then export DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"; fi
 if [ "${DREAMBBS_GIT}" = "" ]; then export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"; fi
 
