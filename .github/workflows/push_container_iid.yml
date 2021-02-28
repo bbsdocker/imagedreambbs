@@ -34,7 +34,7 @@ jobs:
         with:
           push: true
           file: ./Dockerfile.iid
-          tags: bbsdocker/imagedreambbs:iid-latest,bbsdocker/imagedreambbs:iid-${{ steps.date.outputs.date }}
+          tags: bbsdocker/imagedreambbs:iid,bbsdocker/imagedreambbs:iid-latest,bbsdocker/imagedreambbs:iid-${{ steps.date.outputs.date }}
 
       -
         name: Image digest
