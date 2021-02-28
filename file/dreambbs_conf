@@ -5,13 +5,13 @@
 #define BOARDNAME       "夢大 docker"               /* 中文站名 */
 #define NICKNAME        "夢大"                      /* 中文簡稱 */
 #define OWNER	        "NCKU.CCNS"                 /* 學校簡稱 */
-#define MYHOSTNAME      "dreambbs.ccnsdocker.test"  /* 網路位址 */
+#define MYHOSTNAME      "dreambbs.mydocker.test"  /* 網路位址 */
 #define SYSOPNICK       "啊吐精靈"                  /* SYSOP 暱稱 */
 #define BBSHOME	        "/home/bbs"                 /* BBS 的家 */
 #define BBSUID	        9999
 #define BBSGID          9999
 #define TAG_VALID       "[R2-NEWS]To "              /* 身分認證函token */
-#define	HIDEDN_SRC      "ccnsdocker.test"           /* 隱藏來源位置 */
+#define	HIDEDN_SRC      "mydocker.test"           /* 隱藏來源位置 */
 #define BBSNAME	        "DreamDocker"               /* 英文站名 */
 #define	BBSIP           "256.256.256.256"           /* bbs 的 ip */
 
