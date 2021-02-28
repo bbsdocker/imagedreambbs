@@ -3,7 +3,8 @@
 if [ "${DREAMBBS_SNAP_GIT}" = "" ]; then export DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"; fi
 if [ "${DREAMBBS_GIT}" = "" ]; then export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"; fi
 
-set -eux
+set -e
+set -x
 
 ## clone current repo, build and install it
 git clone ${DREAMBBS_SNAP_GIT} ${BBSHOME}
@@ -14,6 +15,8 @@ cp /tmp/env.compile ~/.env.compile
 # check environment
 env
 gcc -v
+
+set -u
 
 git clone ${DREAMBBS_GIT} ${BBSHOME}/src
 cp -v /tmp/dreambbs.conf ${BBSHOME}/src/dreambbs.conf
