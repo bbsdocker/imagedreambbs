@@ -13,6 +13,7 @@ gcc -v
 
 ## clone current repo, build and install it
 git clone ${DREAMBBS_SNAP_GIT} ${BBSHOME}
+rm -rf ${BBSHOME}/.git*
 git clone ${DREAMBBS_GIT} ${BBSHOME}/src
 cp -v /tmp/dreambbs.conf ${BBSHOME}/src/dreambbs.conf
 echo 'export BBSHOME=${HOME}' > ${HOME}/.bashrc
