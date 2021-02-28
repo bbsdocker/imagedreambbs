@@ -20,10 +20,7 @@ RUN yum update -y \
                 gcc-toolset-10-make \
                 cmake \
                 glibc-devel \
-                glibc-devel.i686 \
-                libgcc.i686 \
-                libstdc++-devel.i686 \
-                ncurses-devel.i686 \
+                ncurses-devel \
                 git \
                 sudo \
     && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh \
