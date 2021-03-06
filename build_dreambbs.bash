@@ -6,11 +6,11 @@ if [ "${DREAMBBS_GIT}" = "" ]; then export DREAMBBS_GIT="https://github.com/ccns
 set -e
 set -x
 
+source /tmp/env.compile
 ## clone current repo, build and install it
 git clone ${DREAMBBS_SNAP_GIT} ${BBSHOME}
 rm -rf ${BBSHOME}/.git*
 cp /tmp/env.compile ~/.env.compile
-. ~/.env.compile
 
 # check environment
 env
