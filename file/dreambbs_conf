@@ -21,9 +21,9 @@
 
 /* r2:  可自行定義 ORIGIN_TAG，客製化站簽               */
 
-#define ORIGIN_TAG \
-"--\n" \
-"\033[1;32m※ Origin: \033[35m夢大 docker \033[33m<dreambbs.ccnsdocker.test>  \033[31m◆ From:\033[36m %-34.34s \033[m\n"
+#define ORIGIN_TAG_PIC  ""
+#define ORIGIN_TAG_SITENAME "\033[35m " BOARDNAME " "
+#define ORIGIN_TAG_HOSTNAME "\033[33m<" MYHOSTNAME ">"
 
 /* 開啟 pmore 閱讀器介面, if you use GNU make to compile, please modify the maple/Makefile, too. */
 //#define M3_USE_PMORE            /* piaip's more 2007+ */
@@ -38,4 +38,3 @@
 //#define COUNT_KEY	(4000)
 
 //#define	OBSERVE_KEY	(6000)
-
