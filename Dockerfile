@@ -10,10 +10,12 @@ COPY dreambbs.conf /tmp/dreambbs.conf
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
 COPY env.compile /tmp/env.compile
 
-RUN yum update -y \
-    && yum install -y epel-release \
+RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
     && yum update -y \
-    && yum install --nogpgcheck -y \
+    && yum install -y epel-release \
+    && rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 \
+    && yum update -y \
+    && yum install -y \
                 util-linux-ng \
                 gcc-toolset-10-gcc \
                 gcc-toolset-10-gcc-c++ \
