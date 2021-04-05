@@ -35,7 +35,12 @@ jobs:
           push: true
           file: ./Dockerfile.develop
           tags: bbsdocker/imagedreambbs:develop,bbsdocker/imagedreambbs:develop-latest,bbsdocker/imagedreambbs:develop-${{ steps.date.outputs.date }}
-
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+      -
+        name : Add Notification in bbs-dev in CCNS Discord
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
