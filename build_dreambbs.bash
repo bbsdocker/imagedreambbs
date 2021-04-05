@@ -2,6 +2,7 @@
 
 if [ "${DREAMBBS_SNAP_GIT}" = "" ]; then export DREAMBBS_SNAP_GIT="https://github.com/ccns/dreambbs_snap.git"; fi
 if [ "${DREAMBBS_GIT}" = "" ]; then export DREAMBBS_GIT="https://github.com/ccns/dreambbs.git"; fi
+if [ "${DREAMBBS_BRANCH}" = "" ]; then export DREAMBBS_BRANCH="master"; fi
 
 set -e
 set -x
@@ -18,7 +19,7 @@ gcc -v
 
 set -u
 
-git clone ${DREAMBBS_GIT} ${BBSHOME}/src
+git clone -b ${DREAMBBS_BRANCH} --single-branch ${DREAMBBS_GIT} ${BBSHOME}/src
 cp -v /tmp/dreambbs.conf ${BBSHOME}/src/dreambbs.conf
 echo 'export BBSHOME=${HOME}' > ${HOME}/.bashrc
 echo '. ${HOME}/.bashrc' > ${HOME}/.bash_profile

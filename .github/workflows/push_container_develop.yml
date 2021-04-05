@@ -33,8 +33,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          file: ./Dockerfile.iid
-          tags: bbsdocker/imagedreambbs:iid,bbsdocker/imagedreambbs:iid-latest,bbsdocker/imagedreambbs:iid-${{ steps.date.outputs.date }}
+          file: ./Dockerfile.develop
+          tags: bbsdocker/imagedreambbs:develop,bbsdocker/imagedreambbs:develop-latest,bbsdocker/imagedreambbs:develop-${{ steps.date.outputs.date }}
 
       -
         name: Image digest
