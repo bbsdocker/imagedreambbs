@@ -4,7 +4,7 @@ on:
   push:
     branches: master
   schedule:
-    - cron: "30 13 * * 0/3"
+    - cron: "30 9 * * 2,5"
 
 jobs:
   main:
