@@ -5,7 +5,16 @@ on:
     branches: master
   schedule:
     - cron: "30 9 * * 2,5"
-  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+        src_ref:
+          description: "The branch/tag for which the dispatch is sent from dreambbs project"
+          required: true
+          default: "refs/heads/master"
+        src_sha:
+          description: "The commit SHA for which the dispatch is sent from dreambbs project"
+          required: true
+          default: ""
 
 jobs:
   main:
