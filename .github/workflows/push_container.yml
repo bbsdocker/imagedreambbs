@@ -20,6 +20,14 @@ jobs:
   main:
     if: "!contains(github.event.head_commit.message, 'skip-ci')"
     runs-on: ubuntu-20.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+        fail-fast: false
+        matrix:
+          language: [ 'cpp' ]
     steps:
       -
         name: Get current date
@@ -34,6 +42,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
       -
         name: Build and push
         id: docker_build
@@ -41,6 +57,13 @@ jobs:
         with:
           push: true
           tags: bbsdocker/imagedreambbs:latest,bbsdocker/imagedreambbs:${{ steps.date.outputs.date }}
+
+      - name: Perform CodeQL Analysis
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: github/codeql-action/analyze@v1
+        with:
+          output: '../results'
+          upload: false
 
       -
         name: Image digest
@@ -51,3 +74,21 @@ jobs:
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Upload CodeQL Analysis Results
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          curl \
+          -X POST \
+          -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/ccns/dreambbs/code-scanning/sarifs \
+          -d '{
+            "commit_sha": "'"$SRC_SHA"'",
+            "ref": "'"$SRC_REF"'",
+            "sarif": "'"$(gzip -c "$SARIF_FILE" | base64 -w0)"'"
+          }'
+        env:
+          SRC_SHA: ${{ github.event.inputs.src_sha }}
+          SRC_REF: ${{ github.event.inputs.src_ref }}
+          SARIF_FILE: '../results'
