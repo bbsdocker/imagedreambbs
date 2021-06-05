@@ -45,7 +45,6 @@ jobs:
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: github/codeql-action/init@v1
         with:
           languages: ${{ matrix.language }}
@@ -59,7 +58,6 @@ jobs:
           tags: bbsdocker/imagedreambbs:latest,bbsdocker/imagedreambbs:${{ steps.date.outputs.date }}
 
       - name: Perform CodeQL Analysis
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: github/codeql-action/analyze@v1
         with:
           output: '../results'
@@ -75,8 +73,21 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
 
+      - name: Setting Commit Information from DreamBBS
+        run: |
+          if [[ -z "$SRC_SHA" ]]; then
+            SRC_REF_INFO=$(curl
+              -H "Accept: application/vnd.github.v3+json"
+              https://api.github.com/repos/ccns/dreambbs/branches/master)
+          fi
+          echo "SRC_REF_INFO=$SRC_REF_INFO" >> $GITHUB_ENV
+          echo "SRC_SHA=$SRC_SHA" >> $GITHUB_ENV
+          echo "SRC_REF=$SRC_REF" >> $GITHUB_ENV
+        env:
+          SRC_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_sha || 'refs/heads/master' }}
+          SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || '' }}
+
       - name: Upload CodeQL Analysis Results
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           curl \
           -X POST \
@@ -89,6 +100,5 @@ jobs:
             "sarif": "'"$(gzip -c "$SARIF_FILE" | base64 -w0)"'"
           }'
         env:
-          SRC_SHA: ${{ github.event.inputs.src_sha }}
-          SRC_REF: ${{ github.event.inputs.src_ref }}
+          SRC_SHA: ${{ env.SRC_SHA || fromJSON(env.SRC_REF_INFO).commit.sha }}
           SARIF_FILE: '../results'
