@@ -42,9 +42,9 @@ jobs:
           push: true
           file: ./Dockerfile.develop
           tags: |
-            bbsdocker/imagedreambbs:develop
-            bbsdocker/imagedreambbs:develop-latest
-            bbsdocker/imagedreambbs:develop-${{ steps.date.outputs.date }}
+            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:develop
+            ${{ secrets.DOCKERHUB_REPO_OWNER }}:develop-latest
+            ${{ secrets.DOCKERHUB_REPO_OWNER }}:develop-${{ steps.date.outputs.date }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
