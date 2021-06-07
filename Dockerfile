@@ -32,7 +32,7 @@ ARG SRC_BRANCH="master"
 ARG SRC_REF="refs/heads/master"
 ARG SRC_SHA
 
-RUN sudo -iu bbs env DREAMBBS_GIT="$SRC_REPO" DREAMBBS_BRANCH="$SRC_BRANCH" sh /tmp/build_dreambbs.bash
+RUN sudo -iu bbs env DREAMBBS_GIT="$SRC_REPO" DREAMBBS_BRANCH="$SRC_BRANCH" DREAMBBS_SHA="$SRC_SHA" sh /tmp/build_dreambbs.bash
 
 cmd ["sh","-c","sudo -iu bbs sh /home/bbs/sh/start.sh && sudo -iu bbs /home/bbs/bin/bbsd 8888 && while true; do sleep 10; done"]
 EXPOSE 8888
