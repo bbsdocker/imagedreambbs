@@ -6,9 +6,6 @@ RUN groupadd --gid 9999 bbs \
     && chown bbs:bbs /home/bbs \
     && rm /etc/localtime \
     && ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-COPY dreambbs.conf /tmp/dreambbs.conf
-COPY build_dreambbs.bash /tmp/build_dreambbs.bash
-COPY env.compile /tmp/env.compile
 
 RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
     && yum update -y \
@@ -26,6 +23,10 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
                 git \
                 sudo \
     && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh
+
+COPY env.compile /tmp/env.compile
+COPY build_dreambbs.bash /tmp/build_dreambbs.bash
+COPY dreambbs.conf /tmp/dreambbs.conf
 
 ARG SRC_REPO="https://github.com/ccns/dreambbs.git"
 ARG SRC_BRANCH="master"
