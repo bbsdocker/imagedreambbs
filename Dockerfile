@@ -25,8 +25,9 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
                 ncurses-devel \
                 git \
                 sudo \
-    && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh \
-    && sudo -iu bbs sh /tmp/build_dreambbs.bash
+    && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh
+
+RUN sudo -iu bbs sh /tmp/build_dreambbs.bash
 
 cmd ["sh","-c","sudo -iu bbs sh /home/bbs/sh/start.sh && sudo -iu bbs /home/bbs/bin/bbsd 8888 && while true; do sleep 10; done"]
 EXPOSE 8888
