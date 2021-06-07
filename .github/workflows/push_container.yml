@@ -16,6 +16,10 @@ on:
           required: true
           default: ""
 
+env:
+    SRC_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_sha || '' }}
+    SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || format('refs/heads/{0}', 'master') }}
+
 jobs:
   main:
     if: "!contains(github.event.head_commit.message, 'skip-ci')"
@@ -35,11 +39,27 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Getting Commit Information from DreamBBS
+        run: |
+          SRC_REF_INFO="$(curl \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/ccns/dreambbs/branches/$SRC_REF")"
+          SRC_BRANCH="$(jq -r '.name' <<< "$SRC_REF_INFO")"
+          if [ -z "$SRC_SHA" ]; then
+            SRC_SHA="$(jq -r '.commit.sha' <<< "$SRC_REF_INFO")"
+          fi
+          echo "SRC_BRANCH=$SRC_BRANCH" >> $GITHUB_ENV
+          echo "SRC_SHA=$SRC_SHA" >> $GITHUB_ENV
+      -
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
+          build-args: |
+            "SRC_BRANCH=${{ env.SRC_BRANCH }}"
+            "SRC_SHA=${{ env.SRC_SHA }}"
+            "SRC_REF=${{ env.SRC_REF }}"
           tags: |
             ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:latest
             ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ steps.date.outputs.date }}
