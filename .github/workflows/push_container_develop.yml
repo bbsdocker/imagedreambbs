@@ -1,4 +1,4 @@
-name: push container (development branch)
+name: build (develop)
 
 on:
   push:

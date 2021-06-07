@@ -1,4 +1,4 @@
-name: push container (master branch)
+name: build (master)
 
 on:
   push:
