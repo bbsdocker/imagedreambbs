@@ -1,4 +1,4 @@
-name: build (master)
+name: build
 
 on:
   push:
@@ -56,10 +56,12 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/ccns/dreambbs/branches/$SRC_REF")"
           SRC_BRANCH="$(jq -r '.name' <<< "$SRC_REF_INFO")"
+          SRC_SHA_LATEST="$(jq -r '.commit.sha' <<< "$SRC_REF_INFO")"
           if [ -z "$SRC_SHA" ]; then
-            SRC_SHA="$(jq -r '.commit.sha' <<< "$SRC_REF_INFO")"
+            SRC_SHA="$SRC_SHA_LATEST"
           fi
           echo "SRC_BRANCH=$SRC_BRANCH" >> $GITHUB_ENV
+          echo "SRC_SHA_LATEST=$SRC_SHA_LATEST" >> $GITHUB_ENV
           echo "SRC_SHA=$SRC_SHA" >> $GITHUB_ENV
       -
         name: Build and push
@@ -73,10 +75,13 @@ jobs:
             "SRC_SHA=${{ env.SRC_SHA }}"
             "SRC_REF=${{ env.SRC_REF }}"
           tags: |
-            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:latest
-            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ steps.date.outputs.date }}
+            ${{ env.SRC_BRANCH != 'master' && format('{0}/imagedreambbs:{1}', secrets.DOCKERHUB_REPO_OWNER, env.SRC_BRANCH) || '' }}
+            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}latest
+            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}${{ steps.date.outputs.date }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+        env:
+          TAG_PREFIX: ${{ env.SRC_BRANCH != 'master' && format('{0}-', env.SRC_BRANCH) || '' }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -89,8 +94,27 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
       -
+        name: Forward build result for status badge
+        if: ${{ !cancelled() && env.SRC_SHA == env.SRC_SHA_LATEST }}
+        run: |
+          curl \
+            -X POST \
+            -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches \
+            -d "$(jq -n -jc '{
+              "ref": "refs/heads/master",
+              "inputs": {"build_result": $ENV.RESULT}
+            }')"
+        env:
+          REPO: ${{ github.repository }}
+          WORKFLOW_ID: ${{ format('push_container_{0}.yml', env.SRC_BRANCH) }}
+          RESULT: ${{ job.status }}
+      -
         name : Add Notification in bbs-dev in CCNS Discord
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: ${{ github.workflow }} (${{ env.SRC_BRANCH }})
