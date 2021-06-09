@@ -40,8 +40,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: bbsdocker/imagedreambbs:latest,bbsdocker/imagedreambbs:${{ steps.date.outputs.date }}
-
+          tags: |
+            bbsdocker/imagedreambbs:latest
+            bbsdocker/imagedreambbs:${{ steps.date.outputs.date }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
