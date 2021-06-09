@@ -20,14 +20,6 @@ jobs:
   main:
     if: "!contains(github.event.head_commit.message, 'skip-ci')"
     runs-on: ubuntu-20.04
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    strategy:
-        fail-fast: false
-        matrix:
-          language: [ 'cpp' ]
     steps:
       -
         name: Get current date
@@ -42,13 +34,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: ${{ matrix.language }}
-
       -
         name: Build and push
         id: docker_build
@@ -57,13 +42,6 @@ jobs:
           push: true
           file: ./Dockerfile.develop
           tags: bbsdocker/imagedreambbs:develop,bbsdocker/imagedreambbs:develop-latest,bbsdocker/imagedreambbs:develop-${{ steps.date.outputs.date }}
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
-        with:
-          output: '../results'
-          upload: false
-
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -73,33 +51,3 @@ jobs:
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-
-      - name: Setting Commit Information from DreamBBS
-        run: |
-          if [[ -z "$SRC_SHA" ]]; then
-            SRC_REF_INFO=$(curl
-              -H "Accept: application/vnd.github.v3+json"
-              https://api.github.com/repos/ccns/dreambbs/branches/develop)
-          fi
-          echo "SRC_REF_INFO=$SRC_REF_INFO" >> $GITHUB_ENV
-          echo "SRC_SHA=$SRC_SHA" >> $GITHUB_ENV
-          echo "SRC_REF=$SRC_REF" >> $GITHUB_ENV
-        env:
-          SRC_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_sha || 'refs/heads/develop' }}
-          SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || '' }}
-
-      - name: Upload CodeQL Analysis Results
-        run: |
-          curl \
-          -X POST \
-          -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/ccns/dreambbs/code-scanning/sarifs \
-          -d '{
-            "commit_sha": "'"$SRC_SHA"'",
-            "ref": "'"$SRC_REF"'",
-            "sarif": "'"$(gzip -c "$SARIF_FILE" | base64 -w0)"'"
-          }'
-        env:
-          SRC_SHA: ${{ env.SRC_SHA || fromJSON(env.SRC_REF_INFO).commit.sha }}
-          SARIF_FILE: '../results'
