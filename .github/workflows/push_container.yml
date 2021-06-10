@@ -72,6 +72,19 @@ jobs:
           echo "::set-output name=SRC_SHA_LATEST::$SRC_SHA_LATEST"
           echo "::set-output name=SRC_SHA::$SRC_SHA"
       -
+        name: Set commit status of DreamBBS project
+        continue-on-error: true
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.PAT_TOKEN }}
+          owner: 'ccns'
+          repository: 'dreambbs'
+          context: Build Docker image and perform code scanning from ${{ github.repository }}
+          state: 'pending'
+          sha: ${{ env.SRC_SHA }}
+          target_url:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      -
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
@@ -230,6 +243,27 @@ jobs:
           REPO: ${{ github.repository }}
           WORKFLOW_ID: ${{ format('push_container_{0}.yml', needs.main.outputs.SRC_BRANCH) }}
           RESULT: ${{ env.status }}
+      -
+        name: Update commit status of DreamBBS project
+        uses: Sibz/github-status-action@v1
+        if: always()
+        with:
+          authToken: ${{ secrets.PAT_TOKEN }}
+          owner: 'ccns'
+          repository: 'dreambbs'
+          context: Build Docker image and perform code scanning from ${{ github.repository }}
+          description: |
+            ${{ env.status != 'success' && format('{0} at job: {1}.', env.status, env.status_job_name) || 'success' }}
+          state: |-
+            ${{ (env.status == 'success' && 'success')
+              || (env.status == 'failure' && 'error')
+              || 'failure' }}
+          sha: ${{ needs.main.outputs.SRC_SHA }}
+          target_url:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          status_job_name: ${{ job.status != 'success' && 'conclusion' || env.status_job_name }}
+          status: ${{ job.status != 'success' && job.status || env.status }}
       -
         name : Add Notification in bbs-dev in CCNS Discord
         uses: sarisia/actions-status-discord@v1
