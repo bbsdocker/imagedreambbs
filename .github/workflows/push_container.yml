@@ -19,6 +19,8 @@ on:
 env:
     SRC_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_sha || '' }}
     SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || format('refs/heads/{0}', 'master') }}
+    SRC_REF_NEXT: >-
+      ${{ github.event_name == 'workflow_dispatch' && '{}' || '{"refs/heads/master": "refs/heads/develop"}' }}
 
 jobs:
   main:
@@ -29,6 +31,24 @@ jobs:
       SRC_SHA_LATEST: ${{ steps.src_info.outputs.SRC_SHA_LATEST }}
       SRC_SHA: ${{ steps.src_info.outputs.SRC_SHA }}
     steps:
+      -
+        name: Request building for other branches
+        if: ${{ fromJSON(env.SRC_REF_NEXT)[env.SRC_REF] }}
+        run: |
+          curl \
+            -X POST \
+            -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches \
+            -d "$(jq -n -jc '{
+              "ref": "refs/heads/master",
+              "inputs": {"src_ref": $ENV.src_ref, "src_sha": ""}
+            }')"
+        env:
+          REPO: ${{ github.repository }}
+          WORKFLOW_ID: 'push_container.yml'
+          src_ref: ${{ fromJSON(env.SRC_REF_NEXT)[env.SRC_REF] }}
       -
         name: Checkout
         uses: actions/checkout@v2
