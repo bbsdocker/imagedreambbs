@@ -60,14 +60,6 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       -
-        name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      -
         name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -119,21 +111,11 @@ jobs:
             ${{ env.SRC_BRANCH != 'master' && format('{0}/imagedreambbs:{1}', secrets.DOCKERHUB_REPO_OWNER, env.SRC_BRANCH) || '' }}
             ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}latest
             ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}${{ steps.date.outputs.date }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
         env:
           TAG_PREFIX: ${{ env.SRC_BRANCH != 'master' && format('{0}-', env.SRC_BRANCH) || '' }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-      -
-        # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
   code_scan:
     needs: main
     runs-on: ubuntu-20.04
