@@ -158,10 +158,10 @@ jobs:
       SARIF_ZIPPED_FILE: '../results.sarif.base64'
     steps:
       -
-        name: Install jq
+        name: Install jq and gettext(envsubst)
         run: |
-          yum install jq -y
-          echo "installed jq version: $(jq --version)"
+          dnf install jq gettext -y
+          echo "jq version: $(jq --version)"
       -
         name: Load Compiling Environment
         run: |
