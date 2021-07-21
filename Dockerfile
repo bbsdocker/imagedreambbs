@@ -17,6 +17,7 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
                 gcc-toolset-11-gcc \
                 gcc-toolset-11-gcc-c++ \
                 gcc-toolset-11-make \
+                gcc-toolset-11-binutils \
                 cmake \
                 glibc-devel \
                 ncurses-devel \
