@@ -150,6 +150,7 @@ jobs:
           env -i /bin/bash -c '
             unset PWD SHLVL _
             source <(sudo -u bbs /bin/sh -c "source /tmp/env.compile; envsubst < /tmp/env.compile")
+            source /etc/profile.d/enablegcc11.sh
             env' >> $GITHUB_ENV
       # Initializes the CodeQL tools for scanning.
       -
