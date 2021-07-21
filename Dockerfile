@@ -14,15 +14,15 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
     && yum update -y \
     && yum install -y \
                 util-linux-ng \
-                gcc-toolset-10-gcc \
-                gcc-toolset-10-gcc-c++ \
-                gcc-toolset-10-make \
+                gcc-toolset-11-gcc \
+                gcc-toolset-11-gcc-c++ \
+                gcc-toolset-11-make \
                 cmake \
                 glibc-devel \
                 ncurses-devel \
                 git \
                 sudo \
-    && echo 'source scl_source enable gcc-toolset-10' >> /etc/profile.d/enablegcc10.sh
+    && echo 'source scl_source enable gcc-toolset-11' >> /etc/profile.d/enablegcc11.sh
 
 COPY env.compile /tmp/env.compile
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
