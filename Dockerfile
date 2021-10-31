@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8
+FROM tgagor/centos:stream8
 MAINTAINER "Sean Ho <holishing@ccns.ncku.edu.tw>"
 RUN groupadd --gid 9999 bbs \
     && useradd -g bbs -s /bin/bash --uid 9999 --no-create-home bbs \
