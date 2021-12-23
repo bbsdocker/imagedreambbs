@@ -1,4 +1,4 @@
-name: build
+name: push container
 
 on:
   push:
@@ -26,10 +26,6 @@ jobs:
   main:
     if: "!contains(github.event.head_commit.message, 'skip-ci')"
     runs-on: ubuntu-20.04
-    outputs:
-      SRC_BRANCH: ${{ steps.src_info.outputs.SRC_BRANCH }}
-      SRC_SHA_LATEST: ${{ steps.src_info.outputs.SRC_SHA_LATEST }}
-      SRC_SHA: ${{ steps.src_info.outputs.SRC_SHA }}
     steps:
       -
         name: Request building for other branches
@@ -92,19 +88,6 @@ jobs:
           echo "::set-output name=SRC_SHA_LATEST::$SRC_SHA_LATEST"
           echo "::set-output name=SRC_SHA::$SRC_SHA"
       -
-        name: Set commit status of DreamBBS project
-        continue-on-error: true
-        uses: Sibz/github-status-action@v1
-        with:
-          authToken: ${{ secrets.PAT_TOKEN }}
-          owner: 'ccns'
-          repository: 'dreambbs'
-          context: Build Docker image and perform code scanning from ${{ github.repository }}
-          state: 'pending'
-          sha: ${{ env.SRC_SHA }}
-          target_url:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      -
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
@@ -134,167 +117,10 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-  code_scan:
-    needs: main
-    runs-on: ubuntu-20.04
-    container:
-      image: >-
-        ${{ (github.repository_owner == 'bbsdocker' && 'bbsdocker')
-          || (github.repository_owner == 'IepIweidieng' && 'iepiweidieng')
-          || github.repository_owner
-          }}/imagedreambbs:${{
-          needs.main.outputs.SRC_BRANCH != 'master' && needs.main.outputs.SRC_BRANCH || 'latest' }}
-      ports: [8888]
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    strategy:
-        fail-fast: false
-        matrix:
-          language: [ 'cpp' ]
-    env:
-      SARIF_FILE_PATH: '../results'
-      SARIF_ZIPPED_FILE: '../results.sarif.base64'
-    steps:
-      -
-        name: Install jq and gettext(envsubst)
-        run: |
-          dnf install jq gettext -y
-          echo "jq version: $(jq --version)"
-      -
-        name: Load Compiling Environment
-        run: |
-          env -i /bin/bash -c '
-            unset PWD SHLVL _
-            source <(sudo -u bbs /bin/sh -c "source /tmp/env.compile; envsubst < /tmp/env.compile")
-            source /etc/profile.d/enablegcc11.sh
-            env' >> $GITHUB_ENV
-      # Initializes the CodeQL tools for scanning.
-      -
-        name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: ${{ matrix.language }}
-      -
-        name: Build Project
-        working-directory: ${{ env.BBSHOME }}/src/build
-        run: |
-          make
-      -
-        name: Run Tests
-        continue-on-error: true
-        working-directory: ${{ env.BBSHOME }}/src/build
-        run:
-          make test
-      -
-        name: Move Repository Directory for Analysis
-        run: |
-          mv -t "$GITHUB_WORKSPACE" "$BBSHOME"/src/* "$BBSHOME"/src/.[!.]*
-          ls
-      -
-        name: Perform CodeQL Analysis
-        id: codeql_analysis
-        uses: github/codeql-action/analyze@v1
-        with:
-          output: ${{ env.SARIF_FILE_PATH }}
-          upload: false
-      -
-        name: Merge CodeQL Analysis Results into a File
-        run: |
-            jq -s -jc '{
-              "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-              "version": (reduce .[].version as $item (null; . // $item)),
-              "runs": [.[].runs[]]
-            }' "$SARIF_FILE_PATH"/* \
-            | gzip -c - | base64 -w0 > "$SARIF_ZIPPED_FILE"
-      -
-        name: Upload CodeQL Analysis Results
-        run: |
-          curl \
-            -X POST \
-            -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/ccns/dreambbs/code-scanning/sarifs \
-            -d "$(jq -n -jc '{
-              "commit_sha": $SRC_SHA,
-              "ref": $SRC_REF,
-              "sarif": $sarif
-            }' \
-              --arg SRC_SHA "$SRC_SHA" \
-              --arg SRC_REF "$SRC_REF" \
-              --arg sarif "$(cat "$SARIF_ZIPPED_FILE")"
-            )"
-          # `$ENV` is support only from jq-1.6.
-          # However, only jq-1.5 is currently available in the EPEL Repository for CentoOS 8 Stream.
-        env:
-          SRC_SHA: ${{ needs.main.outputs.SRC_SHA }}
-          SRC_REF: ${{ env.SRC_REF }}
-  conclusion:
-    if: always()
-    needs: [main, code_scan]
-    runs-on: ubuntu-20.04
-    env:
-      status_job_name: >-
-        ${{ (needs.main.result != 'success' && 'main')
-          || (needs.code_scan.result != 'success' && 'code_scan')
-          || 'conclusion' }}
-    steps:
-      -
-        name: Get workflow running status
-        run: |
-          echo "status=$status" >> $GITHUB_ENV
-        env:
-          status: ${{ env.status_job_name == 'conclusion' && job.status || needs[env.status_job_name].result }}
-      -
-        name: Forward build result for status badge
-        if: ${{ env.status != 'cancelled' && needs.main.outputs.SRC_SHA == needs.main.outputs.SRC_SHA_LATEST }}
-        run: |
-          curl \
-            -X POST \
-            -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Content-Type: application/json" \
-            https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_ID/dispatches \
-            -d "$(jq -n -jc '{
-              "ref": "refs/heads/master",
-              "inputs": {"build_result": $ENV.RESULT}
-            }')"
-        env:
-          REPO: ${{ github.repository }}
-          WORKFLOW_ID: ${{ format('push_container_{0}.yml', needs.main.outputs.SRC_BRANCH) }}
-          RESULT: ${{ env.status }}
-      -
-        name: Update commit status of DreamBBS project
-        uses: Sibz/github-status-action@v1
-        if: always()
-        with:
-          authToken: ${{ secrets.PAT_TOKEN }}
-          owner: 'ccns'
-          repository: 'dreambbs'
-          context: Build Docker image and perform code scanning from ${{ github.repository }}
-          description: |
-            ${{ env.status != 'success' && format('{0} at job: {1}.', env.status, env.status_job_name) || 'success' }}
-          state: |-
-            ${{ (env.status == 'success' && 'success')
-              || (env.status == 'failure' && 'error')
-              || 'failure' }}
-          sha: ${{ needs.main.outputs.SRC_SHA }}
-          target_url:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        env:
-          status_job_name: ${{ job.status != 'success' && 'conclusion' || env.status_job_name }}
-          status: ${{ job.status != 'success' && job.status || env.status }}
       -
         name : Add Notification in bbs-dev in CCNS Discord
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ env.status }}
-          title: ${{ github.workflow }} (${{ needs.main.outputs.SRC_BRANCH }})
-          description: |
-            ${{ env.status != 'success' && format('{0} at job: {1}.', env.status, env.status_job_name) || '' }}
-        env:
-          status_job_name: ${{ job.status != 'success' && 'conclusion' || env.status_job_name }}
-          status: ${{ job.status != 'success' && job.status || env.status }}
+          title: ${{ github.workflow }} (${{ steps.src_info.outputs.SRC_BRANCH }})
