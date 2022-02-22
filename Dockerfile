@@ -13,6 +13,7 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
     && rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 \
     && yum update -y \
     && yum install -y \
+                glibc-gconv-extra \
                 util-linux-ng \
                 gcc-toolset-11-gcc \
                 gcc-toolset-11-gcc-c++ \
