@@ -47,7 +47,7 @@ jobs:
           src_ref: ${{ fromJSON(env.SRC_REF_NEXT)[env.SRC_REF] }}
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       -
         name: Get current date
         id: date
