@@ -8,11 +8,11 @@ RUN groupadd --gid 9999 bbs \
     && ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 
 RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
-    && yum update -y \
-    && yum install -y epel-release \
+    && dnf upgrade -y \
+    && dnf install -y epel-release \
     && rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 \
-    && yum update -y \
-    && yum install -y \
+    && dnf upgrade -y \
+    && dnf install -y --setopt=install_weak_deps=False \
                 glibc-gconv-extra \
                 util-linux-ng \
                 gcc-toolset-11-gcc \
