@@ -17,7 +17,7 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
                 util-linux-ng \
                 gcc-toolset-12-gcc \
                 gcc-toolset-12-gcc-c++ \
-                gcc-toolset-12-make \
+                make \
                 gcc-toolset-12-binutils \
                 cmake \
                 glibc-devel \
