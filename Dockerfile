@@ -15,16 +15,16 @@ RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
     && dnf install -y --setopt=install_weak_deps=False \
                 glibc-gconv-extra \
                 util-linux-ng \
-                gcc-toolset-11-gcc \
-                gcc-toolset-11-gcc-c++ \
-                gcc-toolset-11-make \
-                gcc-toolset-11-binutils \
+                gcc-toolset-12-gcc \
+                gcc-toolset-12-gcc-c++ \
+                gcc-toolset-12-make \
+                gcc-toolset-12-binutils \
                 cmake \
                 glibc-devel \
                 ncurses-devel \
                 git \
                 sudo \
-    && echo 'source scl_source enable gcc-toolset-11' >> /etc/profile.d/enablegcc11.sh
+    && echo 'source scl_source enable gcc-toolset-12' >> /etc/profile.d/enablegcc12.sh
 
 COPY env.compile /tmp/env.compile
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
