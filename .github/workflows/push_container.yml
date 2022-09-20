@@ -10,7 +10,7 @@ on:
         src_ref:
           description: "The branch/tag for which the dispatch is sent from dreambbs project"
           required: true
-          default: "refs/heads/master"
+          default: "refs/tags/stable"
         src_sha:
           description: "The commit SHA for which the dispatch is sent from dreambbs project"
           required: false
@@ -18,9 +18,9 @@ on:
 
 env:
     SRC_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_sha || '' }}
-    SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || format('refs/heads/{0}', 'master') }}
+    SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || format('refs/{0}/{1}', 'tags', 'stable') }}
     SRC_REF_NEXT: >-
-      ${{ github.event_name == 'workflow_dispatch' && '{}' || '{"refs/heads/master": "refs/heads/develop"}' }}
+      ${{ github.event_name == 'workflow_dispatch' && '{}' || '{"refs/tags/stable": "refs/heads/master"}' }}
 
 jobs:
   main:
@@ -73,18 +73,18 @@ jobs:
         name: Getting Commit Information from DreamBBS
         id: src_info
         run: |
+          SRC_REF_NAME="${SRC_REF##*/}"
           SRC_REF_INFO="$(curl \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/ccns/dreambbs/branches/$SRC_REF")"
-          SRC_BRANCH="$(jq -r '.name' <<< "$SRC_REF_INFO")"
-          SRC_SHA_LATEST="$(jq -r '.commit.sha' <<< "$SRC_REF_INFO")"
+            "https://api.github.com/repos/ccns/dreambbs/git/$SRC_REF")"
+          SRC_SHA_LATEST="$(jq -r '.object.sha' <<< "$SRC_REF_INFO")"
           if [ -z "$SRC_SHA" ]; then
             SRC_SHA="$SRC_SHA_LATEST"
           fi
-          echo "SRC_BRANCH=$SRC_BRANCH" >> $GITHUB_ENV
+          echo "SRC_REF_NAME=$SRC_REF_NAME" >> $GITHUB_ENV
           echo "SRC_SHA_LATEST=$SRC_SHA_LATEST" >> $GITHUB_ENV
           echo "SRC_SHA=$SRC_SHA" >> $GITHUB_ENV
-          echo "::set-output name=SRC_BRANCH::$SRC_BRANCH"
+          echo "::set-output name=SRC_REF_NAME::$SRC_REF_NAME"
           echo "::set-output name=SRC_SHA_LATEST::$SRC_SHA_LATEST"
           echo "::set-output name=SRC_SHA::$SRC_SHA"
       -
@@ -95,17 +95,17 @@ jobs:
           context: .
           push: true
           build-args: |
-            "SRC_BRANCH=${{ env.SRC_BRANCH }}"
+            "SRC_REF_NAME=${{ env.SRC_REF_NAME }}"
             "SRC_SHA=${{ env.SRC_SHA }}"
             "SRC_REF=${{ env.SRC_REF }}"
           tags: |
-            ${{ env.SRC_BRANCH != 'master' && format('{0}/imagedreambbs:{1}', secrets.DOCKERHUB_REPO_OWNER, env.SRC_BRANCH) || '' }}
+            ${{ env.SRC_REF_NAME != 'stable' && format('{0}/imagedreambbs:{1}', secrets.DOCKERHUB_REPO_OWNER, env.SRC_REF_NAME) || '' }}
             ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}latest
             ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}${{ steps.date.outputs.date }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
         env:
-          TAG_PREFIX: ${{ env.SRC_BRANCH != 'master' && format('{0}-', env.SRC_BRANCH) || '' }}
+          TAG_PREFIX: ${{ env.SRC_REF_NAME != 'stable' && format('{0}-', env.SRC_REF_NAME) || '' }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -123,4 +123,4 @@ jobs:
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: ${{ github.workflow }} (${{ steps.src_info.outputs.SRC_BRANCH }})
+          title: ${{ github.workflow }} (${{ steps.src_info.outputs.SRC_REF_NAME }})
