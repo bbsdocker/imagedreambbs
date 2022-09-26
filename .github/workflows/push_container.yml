@@ -88,6 +88,22 @@ jobs:
           echo "::set-output name=SRC_SHA_LATEST::$SRC_SHA_LATEST"
           echo "::set-output name=SRC_SHA::$SRC_SHA"
       -
+        name: Generate Docker metadata
+        id: docker_meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            latest,enable=${{ env.IS_DEFAULT_REF }}
+            ${{ steps.date.outputs.date }},enable=${{ env.IS_DEFAULT_REF }}
+            ${{ env.SRC_REF_NAME }}
+            ${{ env.SRC_REF_NAME }}-latest
+            ${{ env.SRC_REF_NAME }}-${{ steps.date.outputs.date }}
+        env:
+          IS_DEFAULT_REF: ${{ env.SRC_REF_NAME == 'stable' }}
+      -
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v3
@@ -98,14 +114,9 @@ jobs:
             "SRC_REF_NAME=${{ env.SRC_REF_NAME }}"
             "SRC_SHA=${{ env.SRC_SHA }}"
             "SRC_REF=${{ env.SRC_REF }}"
-          tags: |
-            ${{ env.SRC_REF_NAME != 'stable' && format('{0}/imagedreambbs:{1}', secrets.DOCKERHUB_REPO_OWNER, env.SRC_REF_NAME) || '' }}
-            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}latest
-            ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs:${{ env.TAG_PREFIX }}${{ steps.date.outputs.date }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        env:
-          TAG_PREFIX: ${{ env.SRC_REF_NAME != 'stable' && format('{0}-', env.SRC_REF_NAME) || '' }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
