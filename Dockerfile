@@ -1,4 +1,4 @@
-FROM tgagor/centos:stream8
+FROM docker.io/library/debian:bookworm-slim
 MAINTAINER "Sean Ho <holishing@ccns.ncku.edu.tw>"
 RUN groupadd --gid 9999 bbs \
     && useradd -g bbs -s /bin/bash --uid 9999 --no-create-home bbs \
@@ -7,24 +7,23 @@ RUN groupadd --gid 9999 bbs \
     && rm /etc/localtime \
     && ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 
-RUN rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official \
-    && dnf upgrade -y \
-    && dnf install -y epel-release \
-    && rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-8 \
-    && dnf upgrade -y \
-    && dnf install -y --setopt=install_weak_deps=False \
-                glibc-gconv-extra \
-                util-linux-ng \
-                gcc-toolset-12-gcc \
-                gcc-toolset-12-gcc-c++ \
-                make \
-                gcc-toolset-12-binutils \
-                cmake \
-                glibc-devel \
-                ncurses-devel \
-                git \
-                sudo \
-    && echo 'source scl_source enable gcc-toolset-12' >> /etc/profile.d/enablegcc12.sh
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+		gcc \
+		g++ \
+		make \
+		binutils \
+		cmake \
+		libncurses-dev \
+		git \
+		sudo \
+		locales \
+		locales-all \
+		build-essential \
+		ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY env.compile /tmp/env.compile
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
@@ -35,7 +34,7 @@ ARG SRC_BRANCH="master"
 ARG SRC_REF="refs/heads/master"
 ARG SRC_SHA
 
-RUN sudo -iu bbs env DREAMBBS_GIT="$SRC_REPO" DREAMBBS_BRANCH="$SRC_BRANCH" DREAMBBS_SHA="$SRC_SHA" sh /tmp/build_dreambbs.bash
+RUN sudo -iu bbs env DREAMBBS_GIT="$SRC_REPO" DREAMBBS_BRANCH="$SRC_BRANCH" DREAMBBS_SHA="$SRC_SHA" bash /tmp/build_dreambbs.bash
 
 cmd ["sh","-c","sudo -iu bbs sh /home/bbs/sh/start.sh && sudo -iu bbs /home/bbs/bin/bbsd 8888 && while true; do sleep 10; done"]
 EXPOSE 8888
