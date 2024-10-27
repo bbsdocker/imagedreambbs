@@ -51,7 +51,7 @@ jobs:
       -
         name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -84,9 +84,9 @@ jobs:
           echo "SRC_REF_NAME=$SRC_REF_NAME" >> $GITHUB_ENV
           echo "SRC_SHA_LATEST=$SRC_SHA_LATEST" >> $GITHUB_ENV
           echo "SRC_SHA=$SRC_SHA" >> $GITHUB_ENV
-          echo "::set-output name=SRC_REF_NAME::$SRC_REF_NAME"
-          echo "::set-output name=SRC_SHA_LATEST::$SRC_SHA_LATEST"
-          echo "::set-output name=SRC_SHA::$SRC_SHA"
+          echo "SRC_REF_NAME=$SRC_REF_NAME" >> $GITHUB_OUTPUT
+          echo "SRC_SHA_LATEST=$SRC_SHA_LATEST" >> $GITHUB_OUTPUT
+          echo "SRC_SHA=$SRC_SHA" >> $GITHUB_OUTPUT
       -
         name: Generate Docker metadata
         id: docker_meta
