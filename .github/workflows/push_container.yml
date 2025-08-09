@@ -17,6 +17,8 @@ on:
           default: ""
 
 env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
     SRC_SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_sha || '' }}
     SRC_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.src_ref || format('refs/{0}/{1}', 'tags', 'stable') }}
     SRC_REF_NEXT: >-
