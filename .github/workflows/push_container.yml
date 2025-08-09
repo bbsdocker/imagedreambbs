@@ -96,7 +96,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           # list of Docker images to use as base name for tags
-          images: ${{ secrets.DOCKERHUB_REPO_OWNER }}/imagedreambbs
+          images: ghcr.io/${{ github.repository }}
           # generate Docker tags based on the following events/attributes
           tags: |
             latest,enable=${{ env.IS_DEFAULT_REF }}
