@@ -1,5 +1,4 @@
-ARG DEBIAN_VERSION
-FROM docker.io/library/debian:${DEBIAN_VERSION}-slim AS dreambbs-builder
+FROM quay.io/lib/debian:bookworm-slim AS dreambbs-builder
 RUN groupadd --gid 9999 bbs \
     && useradd -g bbs -s /bin/bash --uid 9999 --no-create-home bbs \
     && mkdir -pv /home/bbs \
@@ -22,6 +21,7 @@ RUN apt-get update \
 		locales-all \
 		build-essential \
 		ca-certificates \
+		busybox \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -36,19 +36,17 @@ ARG SRC_SHA
 
 RUN sudo -iu bbs env DREAMBBS_GIT="$SRC_REPO" DREAMBBS_BRANCH="$SRC_BRANCH" DREAMBBS_SHA="$SRC_SHA" bash /tmp/build_dreambbs.bash
 
-FROM docker.io/library/debian:${DEBIAN_VERSION}-slim AS stage-fileselection
+FROM quay.io/lib/debian:bookworm-slim AS stage-fileselection
 COPY --from=dreambbs-builder /home/bbs /home/bbs
+COPY --from=dreambbs-builder /usr/bin/busybox /opt/busybox/sh
 RUN rm -rfv /home/bbs/src
+RUN ln -rsv /opt/busybox/sh /opt/busybox/sleep
 
-FROM docker.io/library/debian:${DEBIAN_VERSION}-slim
+FROM gcr.io/distroless/base-debian12
+COPY --from=dreambbs-builder /lib/x86_64-linux-gnu/libcrypt.so.1.1.0 /lib/x86_64-linux-gnu/libcrypt.so.1
+COPY --from=stage-fileselection /opt/busybox /opt/busybox
 COPY --from=stage-fileselection /home/bbs /home/bbs
-RUN groupadd --gid 9999 bbs \
-    && useradd -g bbs -s /bin/bash --uid 9999 --no-create-home bbs \
-    && mkdir -pv /home/bbs \
-    && chown -R bbs:bbs /home/bbs \
-    && rm /etc/localtime \
-    && ln -rsv /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-USER bbs
+USER 9999
 WORKDIR /home/bbs
-cmd ["sh","-c","sh /home/bbs/sh/start.sh && /home/bbs/bin/bbsd 8888 && while true; do sleep 10; done"]
+CMD ["/opt/busybox/sh","-c","/opt/busybox/sh /home/bbs/sh/start.sh && /home/bbs/bin/bbsd 8888 && while true; do /opt/busybox/sleep 10; done"]
 EXPOSE 8888
