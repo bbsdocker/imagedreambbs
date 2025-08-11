@@ -43,6 +43,7 @@ RUN rm -rfv /home/bbs/src
 RUN ln -rsv /opt/busybox/sh /opt/busybox/sleep
 
 FROM gcr.io/distroless/base-debian12
+COPY --from=dreambbs-builder /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 COPY --from=dreambbs-builder /lib/x86_64-linux-gnu/libcrypt.so.1.1.0 /lib/x86_64-linux-gnu/libcrypt.so.1
 COPY --from=stage-fileselection /opt/busybox /opt/busybox
 COPY --from=stage-fileselection /home/bbs /home/bbs
