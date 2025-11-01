@@ -1,13 +1,25 @@
-From 4a9678bba382b0d69cf206a2933dbcd801c78e8f Mon Sep 17 00:00:00 2001
+From ef5baf3906b3a703519b3541225b1d0200b17276 Mon Sep 17 00:00:00 2001
 From: holishing <holishing@ccns.ncku.edu.tw>
-Date: Sun, 2 Nov 2025 03:11:25 +0800
-Subject: [PATCH] feat: try strlcpy/strlcat patch for cpp mode
+Date: Sun, 2 Nov 2025 02:40:03 +0800
+Subject: [PATCH] fix(platform): avoid strlcpy/strlcat redefinition on glibc
+ 2.38+
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+Newer glibc (≥ 2.38) provides built-in implementations of strlcpy() and
+strlcat(). Projects that also define these functions will now fail to
+build due to symbol redefinition conflicts.
+
+This patch is trying to verify whether strlcpy()/strlcat() are available
+at compile time and only compiles the compatibility implementation
+when missing. (e.g. glibc is older 2.38)
+
+ref: https://sourceware.org/git/?p=glibc.git;a=commit;h=454a20c8756c9c1d55419153255fc7692b3d2199
 ---
  CMakeLists.txt | 13 +++++++++++++
- include/dao.h  |  4 ++++
  lib/string.c   |  4 ++++
- 3 files changed, 21 insertions(+)
+ 2 files changed, 17 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index b0af93164..fd4fca6eb 100644
@@ -33,23 +45,6 @@ index b0af93164..fd4fca6eb 100644
  ## Toolchain settings
  
  if(NOT USE_CXX)
-diff --git a/include/dao.h b/include/dao.h
-index 514b7d036..18d9c1a94 100644
---- a/include/dao.h
-+++ b/include/dao.h
-@@ -189,8 +189,12 @@ GCC_NONNULLS void str_rtrim(char *buf);
- GCC_NONNULL(1) GCC_RET_NONNULL char *str_ttl_hdrmode(const char *title, enum HdrMode *pmode);
- GCC_NONNULLS GCC_PURE GCC_RET_NONNULL char *str_ttl(const char *title);
- GCC_NONNULLS void str_xor(char *dst GCC_NONSTRING, const char *src);
-+#ifndef HAVE_STRLCAT
- GCC_NONNULLS size_t strlcat(char *dst, const char *src, size_t siz);
-+#endif
-+#ifndef HAVE_STRLCPY
- GCC_NONNULLS size_t strlcpy(char *dst, const char *src, size_t siz);
-+#endif
- /* date.c */
- void str_stamp(char *str, const time_t *chrono);
- char *Btime(const time_t *clock);
 diff --git a/lib/string.c b/lib/string.c
 index b80f1e154..c6ac8daa9 100644
 --- a/lib/string.c
