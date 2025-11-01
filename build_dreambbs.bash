@@ -31,12 +31,10 @@ if [ "${DREAMBBS_SHA}" != "" ]; then
         }
     )
 fi
-cd ${BBSHOME}/src
-git apply /tmp/try_strl.patch
 cp -v /tmp/dreambbs.conf ${BBSHOME}/src/dreambbs.conf
 echo 'export BBSHOME=${HOME}' > ${HOME}/.bashrc
 echo '. ${HOME}/.bashrc' > ${HOME}/.bash_profile
 mkdir ${BBSHOME}/src/build
 cd ${BBSHOME}/src/build
-cmake "-DUSE_CXX=ON" ..
+cmake ..
 make install clean

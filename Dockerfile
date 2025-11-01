@@ -28,7 +28,6 @@ RUN apt-get update \
 COPY env.compile /tmp/env.compile
 COPY build_dreambbs.bash /tmp/build_dreambbs.bash
 COPY dreambbs.conf /tmp/dreambbs.conf
-COPY try_strl.patch /tmp/try_strl.patch
 
 ARG SRC_REPO="https://github.com/ccns/dreambbs.git"
 ARG SRC_BRANCH="master"
